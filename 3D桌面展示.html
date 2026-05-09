@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>自我帮助小助手</title>
+  <style>
+    :root {
+      --bg: #f5f2ec;
+      --panel: #fffdf8;
+      --ink: #17212b;
+      --muted: #657480;
+      --line: #ded5c8;
+      --blue: #276b9b;
+      --green: #4d865b;
+      --gold: #b9862d;
+      --red: #c44d3f;
+      --soft-blue: rgba(39, 107, 155, .09);
+      --soft-green: rgba(77, 134, 91, .10);
+      --shadow: 0 22px 54px rgba(31, 41, 51, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffdf8, #f3e5d1);
+      padding: 28px 24px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 24px;
+    }
+
+    .brand h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .dog-card {
+      align-self: center;
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+    }
+
+    .bubble {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      box-shadow: 0 12px 26px rgba(31, 41, 51, .08);
+    }
+
+    .dog {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      filter: drop-shadow(0 18px 22px rgba(31, 41, 51, .18));
+    }
+
+    .dog span { position: absolute; display: block; }
+    .dog .body {
+      left: 32px; top: 82px; width: 106px; height: 66px;
+      border-radius: 34px 42px 34px 34px;
+      background: linear-gradient(135deg, #f0c078, #db9650);
+      border: 3px solid #85542b;
+    }
+    .dog .head {
+      left: 43px; top: 22px; width: 86px; height: 82px;
+      border-radius: 48% 48% 44% 44%;
+      background: linear-gradient(135deg, #f6ca82, #e09e52);
+      border: 3px solid #85542b;
+      z-index: 4;
+    }
+    .dog .ear {
+      top: 34px; width: 34px; height: 60px;
+      border-radius: 34px 14px 34px 20px;
+      background: linear-gradient(180deg, #935d32, #6e421f);
+      border: 3px solid #5d351b;
+      z-index: 2;
+    }
+    .dog .ear.left { left: 28px; transform: rotate(18deg); }
+    .dog .ear.right { right: 28px; transform: rotate(-18deg) scaleX(-1); }
+    .dog .muzzle {
+      left: 62px; top: 62px; width: 52px; height: 36px;
+      border-radius: 48% 48% 52% 52%;
+      background: #fff1dc;
+      border: 2px solid rgba(133, 84, 43, .42);
+      z-index: 5;
+    }
+    .dog .eye {
+      top: 54px; width: 10px; height: 13px;
+      border-radius: 50%;
+      background: #25313c;
+      z-index: 6;
+    }
+    .dog .eye.left { left: 67px; }
+    .dog .eye.right { right: 67px; }
+    .dog .nose {
+      left: 78px; top: 70px; width: 16px; height: 12px;
+      border-radius: 55% 55% 48% 48%;
+      background: #2a211b;
+      z-index: 7;
+    }
+    .dog .badge {
+      left: 72px; top: 108px; width: 30px; height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: #fff;
+      border: 3px solid #fff;
+      font-size: 12px;
+      font-weight: 800;
+      z-index: 8;
+    }
+
+    .status-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255,253,248,.72);
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat b { color: var(--ink); font-size: 16px; }
+
+    .main {
+      min-width: 0;
+      padding: 28px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+    }
+
+    .top h2 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .top p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .tabs {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 4px;
+      background: var(--panel);
+      box-shadow: 0 10px 28px rgba(31,41,51,.07);
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 9px;
+      min-height: 40px;
+      padding: 0 18px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .tool-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .tool {
+      display: none;
+      padding: 18px;
+    }
+
+    .tool.active {
+      display: grid;
+      gap: 14px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr 170px 128px;
+      gap: 12px;
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: 1fr 160px 160px 128px;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 0 12px;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(39,107,155,.13);
+    }
+
+    button.primary {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--blue);
+      border-radius: 10px;
+      background: var(--blue);
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.primary:disabled {
+      opacity: .62;
+      cursor: wait;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .results {
+      min-height: 0;
+      display: grid;
+    }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: rgba(255,253,248,.72);
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .search-results {
+      display: none;
+      grid-template-columns: 430px 1fr;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .code-results {
+      display: none;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .search-results.active,
+    .code-results.active {
+      display: grid;
+    }
+
+    .list,
+    .detail,
+    .package-pane,
+    .function-pane {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 16px 38px rgba(31,41,51,.08);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .pane-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fffaf0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pane-head h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .pane-head span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .items {
+      max-height: calc(100vh - 290px);
+      overflow: auto;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .result-item,
+    .package-item {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .result-item:hover,
+    .result-item.active,
+    .package-item:hover,
+    .package-item.active {
+      border-color: var(--blue);
+      background: var(--soft-blue);
+    }
+
+    .result-item b,
+    .package-item b {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-item span,
+    .package-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .detail-body,
+    .function-body {
+      max-height: calc(100vh - 290px);
+      overflow: auto;
+      padding: 18px;
+    }
+
+    .path-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #17212b;
+      color: #e9f1f7;
+      padding: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      word-break: break-all;
+      margin-bottom: 14px;
+    }
+
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffaf0;
+      padding: 12px;
+    }
+
+    .metric b {
+      display: block;
+      color: var(--blue);
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .fn-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .fn {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .fn b {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .fn p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .command {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffaf0;
+      color: var(--muted);
+      padding: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 18px; }
+      .top { display: block; }
+      .tabs { margin-top: 16px; }
+      .search-row,
+      .code-row,
+      .search-results,
+      .code-results,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+      .items,
+      .detail-body,
+      .function-body {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="sidebar">
+      <section class="brand">
+        <h1>自我帮助小助手</h1>
+        <p>研究生日常桌面太乱时，用它找文件、看摘要；遇到大代码项目时，用它生成包和函数地图。</p>
+      </section>
+      <section class="dog-card">
+        <div class="bubble" id="bubble">直接输入你记得的几个字，我来帮你找文件位置和大致内容。</div>
+        <div class="dog" aria-hidden="true">
+          <span class="ear left"></span><span class="ear right"></span><span class="body"></span><span class="head"></span>
+          <span class="eye left"></span><span class="eye right"></span><span class="muzzle"></span><span class="nose"></span><span class="badge">AI</span>
+        </div>
+      </section>
+      <section class="status-card">
+        <div class="stat"><span>文件查找</span><b>路径+摘要</b></div>
+        <div class="stat"><span>代码分析</span><b>包+函数</b></div>
+        <div class="stat"><span>运行方式</span><b>本地</b></div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <header class="top">
+        <div>
+          <h2>今天要找什么？</h2>
+          <p>文件模式像搜索框：输入文件名或关键词。代码模式像项目导航器：输入项目路径，先看包，再点包看函数。</p>
+        </div>
+        <nav class="tabs" aria-label="工具模式">
+          <button class="tab active" data-mode="file">文件查找</button>
+          <button class="tab" data-mode="code">代码分析</button>
+        </nav>
+      </header>
+
+      <section class="tool-panel">
+        <form class="tool active" id="fileTool">
+          <div class="search-row">
+            <div>
+              <label for="fileKeyword">文件名或内容关键词</label>
+              <input id="fileKeyword" value="leetcode" placeholder="例如：leetcode、组会、论文、4-26" />
+            </div>
+            <div>
+              <label for="fileScope">搜索范围</label>
+              <input id="fileScope" placeholder="可留空，默认扫桌面" />
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="primary" id="fileRun" type="submit">开始查找</button>
+            </div>
+          </div>
+          <div class="hint">搜索范围留空时，会扫描桌面、文档和当前工具目录；如果你知道大概目录，填入 `F:\Desktop\研二下` 会更快。</div>
+        </form>
+
+        <form class="tool" id="codeTool">
+          <div class="code-row">
+            <div>
+              <label for="codePath">代码项目路径</label>
+              <input id="codePath" value="F:\Desktop\xla" />
+            </div>
+            <div>
+              <label for="codeProvider">分析模型</label>
+              <select id="codeProvider">
+                <option value="offline">离线分析</option>
+                <option value="doubao">豆包</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="chatgpt">ChatGPT</option>
+                <option value="gemini">Gemini</option>
+              </select>
+            </div>
+            <div>
+              <label for="codeLimit">扫描文件数</label>
+              <input id="codeLimit" value="80" />
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button class="primary" id="codeRun" type="submit">分析项目</button>
+            </div>
+          </div>
+          <div class="hint">代码分析会先生成包/模块列表，点击某个包后，再显示这个包里的函数用途。</div>
+        </form>
+      </section>
+
+      <section class="results">
+        <div class="empty" id="emptyState">还没有结果。<br>先在上方输入关键词或项目路径，然后点击运行。</div>
+
+        <section class="search-results" id="searchResults">
+          <aside class="list">
+            <div class="pane-head"><h3>找到的文件</h3><span id="fileCount">0 个</span></div>
+            <div class="items" id="fileItems"></div>
+          </aside>
+          <article class="detail">
+            <div class="pane-head"><h3>文件位置与大致内容</h3><span id="fileMeta">本地摘要</span></div>
+            <div class="detail-body">
+              <div class="metrics" id="fileMetrics"></div>
+              <div class="path-box" id="filePathBox">选择左侧文件查看路径</div>
+              <div class="summary-box" id="fileSummaryBox">文件摘要会显示在这里。</div>
+              <div class="command" id="fileCommand"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="code-results" id="codeResults">
+          <aside class="package-pane">
+            <div class="pane-head"><h3>包 / 模块</h3><span id="packageCount">0 个</span></div>
+            <div class="items" id="packageItems"></div>
+          </aside>
+          <article class="function-pane">
+            <div class="pane-head"><h3 id="packageTitle">函数说明</h3><span id="functionCount">0 个函数</span></div>
+            <div class="function-body">
+              <div class="metrics" id="codeMetrics"></div>
+              <div class="summary-box" id="packageSummary">选择左侧包查看说明。</div>
+              <div class="fn-list" id="functionItems"></div>
+              <div class="command" id="codeCommand"></div>
+            </div>
+          </article>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const bubble = document.getElementById("bubble");
+    const tabs = document.querySelectorAll(".tab");
+    const fileTool = document.getElementById("fileTool");
+    const codeTool = document.getElementById("codeTool");
+    const emptyState = document.getElementById("emptyState");
+    const searchResults = document.getElementById("searchResults");
+    const codeResults = document.getElementById("codeResults");
+    const fileRun = document.getElementById("fileRun");
+    const codeRun = document.getElementById("codeRun");
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    function setMode(mode) {
+      tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.mode === mode));
+      fileTool.classList.toggle("active", mode === "file");
+      codeTool.classList.toggle("active", mode === "code");
+      bubble.textContent = mode === "file"
+        ? "直接输入你记得的几个字，我来帮你找文件位置和大致内容。"
+        : "输入项目路径，我会先给你包/模块地图，再展示函数用途。";
+    }
+
+    function showPanel(kind) {
+      emptyState.style.display = "none";
+      searchResults.classList.toggle("active", kind === "file");
+      codeResults.classList.toggle("active", kind === "code");
+    }
+
+    function renderMetrics(node, rows) {
+      node.innerHTML = (rows || []).map(([value, label]) => `<div class="metric"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`).join("");
+    }
+
+    function resultBlock(result) {
+      const excerpt = (result.analysis_text || result.report_excerpt || "").trim();
+      const command = (result.command || "").trim();
+      if (!excerpt && !command) return "";
+      return [
+        excerpt ? `【分析结果】\n${excerpt}` : "",
+        command ? `\n【本次自动运行命令】\n${command}` : ""
+      ].filter(Boolean).join("\n");
+    }
+
+    async function postAnalyze(payload) {
+      if (!location.protocol.startsWith("http")) {
+        throw new Error("请通过 http://127.0.0.1:8765/ 打开页面，file:// 页面不能自动运行脚本。");
+      }
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || "分析失败");
+      return data.result;
+    }
+
+    function renderFiles(result) {
+      showPanel("file");
+      const files = result.locations || [];
+      document.getElementById("fileCount").textContent = `${files.length} 个`;
+      renderMetrics(document.getElementById("fileMetrics"), result.metrics);
+      document.getElementById("fileCommand").textContent = resultBlock(result);
+      const fileItems = document.getElementById("fileItems");
+      fileItems.innerHTML = files.map((item, index) => {
+        const name = item.path ? item.path.split(/[\\/]/).pop() : "未命名文件";
+        return `<button class="result-item ${index === 0 ? "active" : ""}" data-index="${index}">
+          <b>${escapeHtml(name)}</b>
+          <span>${escapeHtml(item.path)}</span>
+        </button>`;
+      }).join("") || `<div class="summary-box">没有找到匹配文件。</div>`;
+
+      const showFile = (index) => {
+        const item = files[index];
+        if (!item) return;
+        document.getElementById("filePathBox").textContent = item.path;
+        document.getElementById("fileSummaryBox").textContent = item.preview || "已找到文件路径，但当前类型暂时无法提取内容摘要。";
+        document.getElementById("fileMeta").textContent = (item.keywords || []).join(", ") || "文件名匹配";
+        fileItems.querySelectorAll(".result-item").forEach((button, i) => button.classList.toggle("active", i === index));
+      };
+      fileItems.querySelectorAll(".result-item").forEach(button => button.addEventListener("click", () => showFile(Number(button.dataset.index))));
+      showFile(0);
+    }
+
+    function renderCode(result) {
+      showPanel("code");
+      const packages = result.packages || [];
+      document.getElementById("packageCount").textContent = `${packages.length} 个`;
+      renderMetrics(document.getElementById("codeMetrics"), result.metrics);
+      document.getElementById("codeCommand").textContent = resultBlock(result);
+      const packageItems = document.getElementById("packageItems");
+      packageItems.innerHTML = packages.map((pkg, index) => `
+        <button class="package-item ${index === 0 ? "active" : ""}" data-index="${index}">
+          <b>${escapeHtml(pkg.name)}</b>
+          <span>${pkg.file_count} 个文件 · ${pkg.function_count} 个函数<br>${escapeHtml(pkg.purpose)}</span>
+        </button>
+      `).join("") || `<div class="summary-box">没有识别到包结构。</div>`;
+
+      const showPackage = (index) => {
+        const pkg = packages[index];
+        if (!pkg) return;
+        document.getElementById("packageTitle").textContent = pkg.name;
+        document.getElementById("functionCount").textContent = `${pkg.function_count} 个函数`;
+        document.getElementById("packageSummary").textContent = pkg.purpose;
+        document.getElementById("functionItems").innerHTML = (pkg.functions || []).map(fn => `
+          <div class="fn">
+            <b>${escapeHtml(fn.name)} · ${escapeHtml(fn.path)} · ${escapeHtml(fn.lines)} 行</b>
+            <p>${escapeHtml(fn.purpose)}</p>
+          </div>
+        `).join("");
+        packageItems.querySelectorAll(".package-item").forEach((button, i) => button.classList.toggle("active", i === index));
+      };
+      packageItems.querySelectorAll(".package-item").forEach(button => button.addEventListener("click", () => showPackage(Number(button.dataset.index))));
+      showPackage(0);
+    }
+
+    tabs.forEach(tab => tab.addEventListener("click", () => setMode(tab.dataset.mode)));
+
+    fileTool.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const keyword = document.getElementById("fileKeyword").value.trim();
+      const scope = document.getElementById("fileScope").value.trim();
+      fileRun.disabled = true;
+      fileRun.textContent = "查找中...";
+      bubble.textContent = "正在查找文件，并提取大致内容。";
+      try {
+        const result = await postAnalyze({
+          mode: "search",
+          paths: scope ? [scope] : [],
+          keywords: keyword ? keyword.split(/[,，\s]+/).filter(Boolean) : [],
+          max_files: 600
+        });
+        renderFiles(result);
+        bubble.textContent = "找到了，左侧是文件列表，右侧是路径和内容摘要。";
+      } catch (error) {
+        emptyState.style.display = "grid";
+        emptyState.innerHTML = `运行失败。<br>${escapeHtml(error.message)}`;
+      } finally {
+        fileRun.disabled = false;
+        fileRun.textContent = "开始查找";
+      }
+    });
+
+    codeTool.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const path = document.getElementById("codePath").value.trim();
+      const provider = document.getElementById("codeProvider").value;
+      const limit = Number(document.getElementById("codeLimit").value) || 80;
+      codeRun.disabled = true;
+      codeRun.textContent = "分析中...";
+      bubble.textContent = "正在分析项目结构，生成包和函数地图。";
+      try {
+        const result = await postAnalyze({ mode: "code", paths: [path], provider, max_files: limit });
+        renderCode(result);
+        bubble.textContent = "分析完成。先点左侧包，再看右侧函数说明。";
+      } catch (error) {
+        emptyState.style.display = "grid";
+        emptyState.innerHTML = `运行失败。<br>${escapeHtml(error.message)}`;
+      } finally {
+        codeRun.disabled = false;
+        codeRun.textContent = "分析项目";
+      }
+    });
+  </script>
+</body>
+</html>
